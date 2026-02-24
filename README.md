@@ -36,6 +36,12 @@
 | [11-最佳实践与陷阱](./11-最佳实践与陷阱/) | 设计原则、常见陷阱、性能优化、测试策略 | ⭐⭐⭐⭐ |
 | [12-未来展望](./12-未来展望/) | 技术趋势、新兴场景、挑战与风险 | ⭐⭐⭐ |
 
+### 附录
+
+| 章节 | 内容 | 难度 |
+|------|------|------|
+| [13-API申请与本地部署](./13-API申请与本地部署/) | **免费API申请教程、本地模型部署指南** | ⭐ |
+
 ## 学习路径
 
 ```
@@ -63,6 +69,12 @@
 │  │10-实战  │ → │11-最佳  │ → │12-未来  │                       │
 │  └─────────┘   └─────────┘   └─────────┘                       │
 │                                                                 │
+│  附录：API申请与本地部署（随时查阅）                              │
+│  ┌─────────────────────────────────────────┐                   │
+│  │  13-API申请与本地部署                    │                   │
+│  │  - 免费 API 申请教程                     │                   │
+│  │  - 本地模型部署指南（Ollama/LM Studio）  │                   │
+│  └─────────────────────────────────────────┘                   │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -74,7 +86,7 @@
 
 ```python
 response = openai.chat.completions.create(
-    model="gpt-4",
+    model="gpt-4o",
     messages=[{"role": "user", "content": "你好"}]
 )
 ```
@@ -102,15 +114,47 @@ AI Agent：用户目标 → 规划 → 使用工具 → 执行 → 完成目标
 └─────────────────┘
 ```
 
+## 免费 API 推荐
+
+| API | 免费额度 | 特点 |
+|-----|----------|------|
+| **NVIDIA NIM** | 部分模型完全免费 | 推荐！Llama、DeepSeek、Kimi 等 |
+| **Google Gemini** | 免费层级 + $300/90天 | 免费额度大，国内可访问 |
+| **DeepSeek** | 新用户送 10 元 | 国产推荐，错峰更便宜 |
+| **硅基流动** | 新用户送额度 | 国内访问稳定 |
+
+👉 详细申请教程见 [13-API申请与本地部署](./13-API申请与本地部署/)
+
+## 本地模型部署
+
+### Ollama（推荐）
+
+```bash
+# 安装后运行
+ollama run deepseek-r1:7b
+ollama run qwen2.5:7b
+ollama run llama3.1:8b
+```
+
+### 配置要求
+
+| 模型大小 | 最低显存 | 推荐显存 |
+|----------|----------|----------|
+| 7B | 8GB | 12GB |
+| 14B | 16GB | 24GB |
+| 32B | 24GB | 48GB |
+
+👉 详细部署教程见 [13-API申请与本地部署](./13-API申请与本地部署/)
+
 ## 推荐学习顺序
 
 ### 新手入门
 
 ```
-01 → 02 → 03 → 04 → 05
+13(API申请) → 01 → 02 → 03 → 04 → 05
 ```
 
-按顺序学习，建立完整的基础知识体系。
+先申请免费 API，然后按顺序学习。
 
 ### 有一定基础
 
@@ -177,6 +221,7 @@ AI Agent：用户目标 → 规划 → 使用工具 → 执行 → 完成目标
 - [OpenAI API 文档](https://platform.openai.com/docs)
 - [Claude API 文档](https://docs.anthropic.com/)
 - [LangChain 文档](https://python.langchain.com/docs/)
+- [Ollama 官网](https://ollama.com/)
 
 ### 学习平台
 
@@ -189,6 +234,7 @@ AI Agent：用户目标 → 规划 → 使用工具 → 执行 → 完成目标
 - [LangChain](https://github.com/langchain-ai/langchain)
 - [AutoGPT](https://github.com/Significant-Gravitas/AutoGPT)
 - [CrewAI](https://github.com/joaomdmoura/crewAI)
+- [Ollama](https://github.com/ollama/ollama)
 
 ## 贡献指南
 
