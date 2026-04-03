@@ -1,40 +1,64 @@
-# API 申请与本地部署指南
+# 00-API 申请与本地部署
 
-本章详细介绍如何申请各种大模型 API，以及如何在本地部署大模型。
+大家好！在开始学习 AI Agent 之前，我们需要先搞定两件事：
+1. **申请一个免费的 API**（这样就能调用大模型了）
+2. **或者在本地部署模型**（完全免费，隐私安全）
 
-## 一、主流 API 申请教程
+## 一、快速开始：推荐方案
 
-### 1. OpenAI API（GPT 系列）
+### 方案 A：使用免费 API（推荐新手）
 
-#### 申请步骤
-
-1. **访问官网**：https://platform.openai.com/
-2. **注册账号**：需要邮箱注册（国内用户需要科学上网）
-3. **绑定支付方式**：需要海外信用卡（如 Depay 虚拟卡）
-4. **获取 API Key**：
-   - 登录后进入 API Keys 页面
-   - 点击 "Create new secret key"
-   - 保存好 API Key（只显示一次）
-
-#### 价格（2025年最新）
-
-| 模型 | 输入价格 | 输出价格 |
-|------|----------|----------|
-| GPT-4o | $2.50/1M tokens | $10.00/1M tokens |
-| GPT-4o-mini | $0.15/1M tokens | $0.60/1M tokens |
-| GPT-4 Turbo | $10.00/1M tokens | $30.00/1M tokens |
-| o1-preview | $15.00/1M tokens | $60.00/1M tokens |
-| o1-mini | $1.75/1M tokens | $7.00/1M tokens |
-
-#### 调用示例
+**NVIDIA NIM API** - 完全免费，国内可访问
 
 ```python
-from openai import OpenAI
+import openai
 
-client = OpenAI(api_key="sk-xxx")
+# 配置 API
+API_KEY = "你的 API Key"
+BASE_URL = "https://integrate.api.nvidia.com/v1"
+MODEL = "meta/llama-3.1-70b-instruct"
+
+# 创建客户端
+client = openai.OpenAI(api_key=API_KEY, base_url=BASE_URL)
+
+# 调用模型
+response = client.chat.completions.create(
+    model=MODEL,
+    messages=[{"role": "user", "content": "你好"}]
+)
+
+print(response.choices[0].message.content)
+```
+
+**申请步骤：**
+1. 访问 https://build.nvidia.com/
+2. 注册 NVIDIA 账号
+3. 点击 "Get API Key"
+4. 复制 API Key 到代码中
+
+### 方案 B：本地部署（推荐有显卡的同学）
+
+**Ollama** - 一键安装，超简单
+
+```bash
+# 1. 下载安装 Ollama
+# 访问 https://ollama.com 下载安装包
+
+# 2. 安装后运行模型
+ollama run qwen2.5:7b
+```
+
+```python
+import openai
+
+# 本地模型也兼容 OpenAI 格式！
+client = openai.OpenAI(
+    base_url="http://localhost:11434/v1",
+    api_key="ollama"  # 随便填
+)
 
 response = client.chat.completions.create(
-    model="gpt-4o",
+    model="qwen2.5:7b",
     messages=[{"role": "user", "content": "你好"}]
 )
 
@@ -43,102 +67,80 @@ print(response.choices[0].message.content)
 
 ---
 
-### 2. Anthropic Claude API
+## 二、免费 API 大全
 
-#### 申请步骤
+### 1. NVIDIA NIM（强烈推荐⭐）
 
-1. **访问官网**：https://console.anthropic.com/
-2. **注册账号**：支持 Google 登录
-3. **获取 API Key**：
-   - 进入 Dashboard
-   - 点击 "Create API Key"
-   - 新用户有 $5 免费额度
+**特点：**
+- ✅ 部分模型完全免费
+- ✅ 国内访问稳定
+- ✅ 模型种类多
 
-#### 价格（2025年最新）
-
-| 模型 | 输入价格 | 输出价格 |
-|------|----------|----------|
-| Claude Opus 4 | $15.00/1M tokens | $75.00/1M tokens |
-| Claude Sonnet 4 | $3.00/1M tokens | $15.00/1M tokens |
-| Claude Haiku 3.5 | $0.80/1M tokens | $4.00/1M tokens |
-
-#### 调用示例
-
+**可用模型：**
 ```python
-import anthropic
-
-client = anthropic.Anthropic(api_key="sk-ant-xxx")
-
-message = client.messages.create(
-    model="claude-sonnet-4-20250514",
-    max_tokens=1024,
-    messages=[{"role": "user", "content": "你好"}]
-)
-
-print(message.content[0].text)
+models = [
+    "meta/llama-3.1-70b-instruct",    # Llama 3.1 70B
+    "meta/llama-3.1-8b-instruct",     # Llama 3.1 8B
+    "qwen/qwen2.5-72b-instruct",      # 通义千问
+    "deepseek-ai/deepseek-r1",        # DeepSeek R1
+]
 ```
 
----
+**完整示例代码：**
+```python
+import openai
 
-### 3. Google Gemini API（推荐！免费额度大）
+client = openai.OpenAI(
+    api_key="你的 API Key",
+    base_url="https://integrate.api.nvidia.com/v1"
+)
 
-#### 申请步骤
+response = client.chat.completions.create(
+    model="meta/llama-3.1-70b-instruct",
+    messages=[
+        {"role": "system", "content": "你是一个有帮助的助手"},
+        {"role": "user", "content": "你好，请介绍一下自己"}
+    ],
+    temperature=0.7,
+    max_tokens=1024
+)
 
-1. **访问 Google AI Studio**：https://aistudio.google.com/apikeys
-2. **登录 Google 账号**
-3. **创建 API Key**：点击 "Create API Key"
-4. **绑定信用卡**（可选）：可获得 $300/90天 免费额度
+print(response.choices[0].message.content)
+```
 
-#### 免费额度（2025年最新）
+### 2. Google Gemini（免费额度大）
 
-| 模型 | RPM（每分钟请求） | RPD（每日请求） | TPM（每分钟Token） |
-|------|-------------------|-----------------|-------------------|
-| Gemini 2.5 Pro | 5 | 100 | 250,000 |
-| Gemini 2.5 Flash | 10 | 250 | 250,000 |
-| Gemini 2.5 Flash-Lite | 15 | 1,000 | 250,000 |
+**特点：**
+- ✅ 免费层级额度充足
+- ✅ 支持多模态（图片、视频）
+- ✅ 新用户送 $300 额度
 
-#### 调用示例
+**申请：** https://aistudio.google.com/apikeys
 
 ```python
 import google.generativeai as genai
 
-genai.configure(api_key="AIza-xxx")
+genai.configure(api_key="你的 API Key")
 
-model = genai.GenerativeModel('gemini-2.5-flash')
-
+model = genai.GenerativeModel('gemini-2.0-flash')
 response = model.generate_content("你好")
 print(response.text)
 ```
 
----
+### 3. DeepSeek（国产性价比之王）
 
-### 4. DeepSeek API（国产推荐！性价比高）
+**特点：**
+- ✅ 新用户送 10 元额度
+- ✅ 中文能力强
+- ✅ 价格超低
 
-#### 申请步骤
-
-1. **访问官网**：https://platform.deepseek.com/
-2. **注册账号**：支持手机号、微信登录
-3. **获取 API Key**：
-   - 进入 API Keys 页面
-   - 点击 "创建 API Key"
-   - 新用户赠送 10 元额度
-
-#### 价格（2025年最新）
-
-| 模型 | 输入价格 | 输出价格 | 备注 |
-|------|----------|----------|------|
-| DeepSeek-V3 | ¥2/百万 tokens | ¥8/百万 tokens | 错峰时段 5 折 |
-| DeepSeek-R1 | ¥4/百万 tokens | ¥16/百万 tokens | 错峰时段 2.5 折 |
-
-**错峰时段**：北京时间 00:30 - 08:30
-
-#### 调用示例
+**申请：** https://platform.deepseek.com/
 
 ```python
-from openai import OpenAI
+import openai
 
-client = OpenAI(
-    api_key="sk-xxx",
+client = openai.OpenAI(
+    api_key="你的 API Key",
     base_url="https://api.deepseek.com/v1"
 )
 
@@ -150,316 +152,209 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
----
+### 4. 其他推荐
 
-### 5. NVIDIA NIM API（免费！强烈推荐）
-
-#### 简介
-
-NVIDIA NIM 提供多种开源模型的 API 调用，**部分模型完全免费**，国内访问稳定。
-
-#### 申请步骤
-
-1. **访问官网**：https://build.nvidia.com/
-2. **注册/登录 NVIDIA 账号**
-3. **选择模型**：浏览可用模型列表
-4. **获取 API Key**：点击 "Get API Key"
-
-#### 免费可用模型
-
-| 模型 | 说明 |
-|------|------|
-| meta/llama-3.1-405b-instruct | Llama 3.1 405B |
-| meta/llama-3.1-70b-instruct | Llama 3.1 70B |
-| meta/llama-3.1-8b-instruct | Llama 3.1 8B |
-| mistralai/mistral-7b-instruct-v0.3 | Mistral 7B |
-| deepseek-ai/deepseek-r1 | DeepSeek R1 |
-| moonshotai/kimi-k2-2505 | Kimi K2.5 |
-
-#### 调用示例
-
-```python
-from openai import OpenAI
-
-client = OpenAI(
-    base_url="https://integrate.api.nvidia.com/v1/",
-    api_key="nvapi-xxx"
-)
-
-response = client.chat.completions.create(
-    model="meta/llama-3.1-70b-instruct",
-    messages=[{"role": "user", "content": "你好"}],
-    temperature=0.7,
-    max_tokens=1024
-)
-
-print(response.choices[0].message.content)
-```
+| 平台 | 特点 | 地址 |
+|------|------|------|
+| 硅基流动 | 国内稳定，多种模型 | https://siliconflow.cn/ |
+| 阿里云百炼 | 通义千问官方 | https://bailian.console.aliyun.com/ |
+| 智谱 AI | ChatGLM 官方 | https://open.bigmodel.cn/ |
+| 月之暗面 | Kimi 长文本 | https://platform.moonshot.cn/ |
 
 ---
 
-### 6. 其他免费/低成本 API
+## 三、本地部署详解
 
-#### 硅基流动
+### Ollama（最简单）
 
-- 官网：https://siliconflow.cn/
-- 特点：国内访问稳定，多种开源模型
-- 免费额度：新用户送额度
+**安装步骤：**
 
-#### 阿里云百炼（通义千问）
+1. Windows 用户：下载 `.exe` 安装包，双击安装
+2. macOS 用户：下载 `.dmg` 安装包
+3. Linux 用户：`curl -fsSL https://ollama.com/install.sh | sh`
 
-- 官网：https://bailian.console.aliyun.com/
-- 特点：国产模型，中文能力强
-- 免费额度：新用户有免费额度
-
-#### 智谱 AI（ChatGLM）
-
-- 官网：https://open.bigmodel.cn/
-- 特点：国产模型，开源版本可本地部署
-- 免费额度：新用户送 tokens
-
-#### 月之暗面（Kimi）
-
-- 官网：https://platform.moonshot.cn/
-- 特点：长文本处理能力强
-- 免费额度：新用户送额度
-
----
-
-## 二、本地模型部署
-
-### 1. Ollama（推荐！最简单）
-
-#### 简介
-
-Ollama 是最简单的本地大模型部署工具，支持 Windows、macOS、Linux。
-
-#### 安装步骤
-
-1. **下载安装**：https://ollama.com/
-   - Windows: 下载 .exe 安装包
-   - macOS: 下载 .dmg 安装包
-   - Linux: `curl -fsSL https://ollama.com/install.sh | sh`
-
-2. **验证安装**：
-   ```bash
-   ollama --version
-   ```
-
-3. **下载模型**：
-   ```bash
-   # DeepSeek R1（推荐）
-   ollama run deepseek-r1:7b
-   
-   # Qwen 系列
-   ollama run qwen2.5:7b
-   
-   # Llama 系列
-   ollama run llama3.1:8b
-   
-   # Mistral
-   ollama run mistral:7b
-   ```
-
-#### 常用命令
-
+**常用命令：**
 ```bash
-# 查看已安装模型
+# 查看可用模型
 ollama list
 
+# 下载模型
+ollama pull qwen2.5:7b
+ollama pull llama3.1:8b
+ollama pull deepseek-r1:7b
+
 # 运行模型
-ollama run deepseek-r1:7b
+ollama run qwen2.5:7b
 
 # 删除模型
-ollama rm deepseek-r1:7b
-
-# 查看模型信息
-ollama show deepseek-r1:7b
+ollama rm qwen2.5:7b
 ```
 
-#### API 调用
-
-Ollama 默认在 11434 端口提供 API 服务：
-
-```python
-import requests
-
-response = requests.post(
-    "http://localhost:11434/api/chat",
-    json={
-        "model": "deepseek-r1:7b",
-        "messages": [{"role": "user", "content": "你好"}],
-        "stream": False
-    }
-)
-
-print(response.json()["message"]["content"])
+**配置要求：**
+```
+7B 模型：最低 8GB 显存，推荐 12GB
+14B 模型：最低 16GB 显存，推荐 24GB
+32B 模型：最低 24GB 显存，推荐 48GB
 ```
 
-#### 兼容 OpenAI API
-
-```python
-from openai import OpenAI
-
-client = OpenAI(
-    base_url="http://localhost:11434/v1",
-    api_key="ollama"  # 任意值
-)
-
-response = client.chat.completions.create(
-    model="deepseek-r1:7b",
-    messages=[{"role": "user", "content": "你好"}]
-)
-
-print(response.choices[0].message.content)
-```
-
-#### 修改模型存储路径
-
+**修改模型存储位置：**
 ```bash
-# Windows: 设置环境变量
+# Windows
 setx OLLAMA_MODELS "D:\ollama_models"
 
 # macOS/Linux
 export OLLAMA_MODELS="/path/to/models"
 ```
 
----
+### LM Studio（图形界面）
 
-### 2. LM Studio
+适合不喜欢命令行的同学：
 
-#### 简介
-
-LM Studio 是一个图形化的本地模型运行工具，适合非技术用户。
-
-#### 安装步骤
-
-1. **下载**：https://lmstudio.ai/
-2. **安装**：双击安装包
-3. **搜索模型**：在搜索框输入模型名称
-4. **下载模型**：点击下载按钮
-5. **运行对话**：在 Chat 界面使用
-
-#### 支持的模型
-
-- Llama 系列
-- Mistral 系列
-- Qwen 系列
-- DeepSeek 系列
-- Phi 系列
+1. 下载：https://lmstudio.ai/
+2. 安装后搜索模型
+3. 点击下载
+4. 在 Chat 界面直接使用
 
 ---
 
-### 3. vLLM（高性能推理）
+## 四、实战：用 API 完成第一个任务
 
-#### 简介
-
-vLLM 是高性能的大模型推理引擎，适合生产环境。
-
-#### 安装
-
-```bash
-pip install vllm
-```
-
-#### 使用示例
+### 例子 1：让 AI 自我介绍
 
 ```python
-from vllm import LLM, SamplingParams
+import openai
 
-llm = LLM(model="Qwen/Qwen2.5-7B-Instruct")
-
-sampling_params = SamplingParams(temperature=0.7, max_tokens=100)
-
-outputs = llm.generate(["你好"], sampling_params)
-
-print(outputs[0].outputs[0].text)
-```
-
----
-
-### 4. Hugging Face Transformers
-
-#### 安装
-
-```bash
-pip install transformers torch
-```
-
-#### 使用示例
-
-```python
-from transformers import AutoModelForCausalLM, AutoTokenizer
-
-model_name = "Qwen/Qwen2.5-7B-Instruct"
-
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    torch_dtype="auto",
-    device_map="auto"
+client = openai.OpenAI(
+    api_key="你的 API Key",
+    base_url="https://integrate.api.nvidia.com/v1"
 )
 
-messages = [{"role": "user", "content": "你好"}]
-text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+response = client.chat.completions.create(
+    model="meta/llama-3.1-70b-instruct",
+    messages=[
+        {"role": "user", "content": "请用一句话介绍你自己"}
+    ]
+)
 
-inputs = tokenizer(text, return_tensors="pt").to(model.device)
-outputs = model.generate(**inputs, max_new_tokens=100)
+print(response.choices[0].message.content)
+```
 
-print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+### 例子 2：翻译句子
+
+```python
+import openai
+
+client = openai.OpenAI(
+    api_key="你的 API Key",
+    base_url="https://integrate.api.nvidia.com/v1"
+)
+
+response = client.chat.completions.create(
+    model="meta/llama-3.1-70b-instruct",
+    messages=[
+        {"role": "system", "content": "你是一个翻译助手"},
+        {"role": "user", "content": "把这句话翻译成英文：你好，很高兴认识你"}
+    ]
+)
+
+print(response.choices[0].message.content)
+```
+
+### 例子 3：批改作文（JSON 格式输出）
+
+```python
+import openai
+import json
+import json_repair
+
+client = openai.OpenAI(
+    api_key="你的 API Key",
+    base_url="https://integrate.api.nvidia.com/v1"
+)
+
+essay = """
+My Self-Introduction
+Hello, everyone! My name is Li Ming.
+I'm ten years old. I study at Green Tree Primary School.
+I like reading books and playing football.
+I have a happy family. I want to make friends with all of you.
+Thank you!
+"""
+
+prompt = """
+用小学四年级的标准给我的英文作文打分
+满分 100 分，请用这样的格式输出
+{"分数":"xxx","评语":"xxxx"}
+直接输出不要有任何多余的输出，只要 JSON
+"""
+
+response = client.chat.completions.create(
+    model="meta/llama-3.1-70b-instruct",
+    messages=[
+        {"role": "system", "content": prompt},
+        {"role": "user", "content": essay}
+    ]
+)
+
+result = response.choices[0].message.content
+print("原始结果:", result)
+
+# 解析 JSON
+rjson = json.loads(json_repair.repair_json(result))
+score = rjson.get("分数", "未知")
+comment = rjson.get("评语", "无评语")
+
+print(f"\n批改结果：")
+print(f"分数：{score}")
+print(f"评语：{comment}")
 ```
 
 ---
 
-## 三、模型选择建议
+## 五、常见问题
 
-### 按场景选择
+### Q1: API Key 安全吗？
 
-| 场景 | 推荐方案 |
-|------|----------|
-| 学习测试 | Gemini API（免费）或 NVIDIA NIM（免费） |
-| 日常开发 | DeepSeek API（便宜）或 Ollama 本地 |
-| 生产环境 | OpenAI GPT-4o 或 Claude |
-| 长文本处理 | Kimi 或 Claude |
-| 代码生成 | GPT-4o 或 DeepSeek-R1 |
-| 中文任务 | DeepSeek 或 Qwen |
+**重要：** 不要把 API Key 上传到 GitHub！
 
-### 按预算选择
+正确做法：
+```python
+import os
+from dotenv import load_dotenv
 
-| 预算 | 推荐方案 |
-|------|----------|
-| 零成本 | NVIDIA NIM + Gemini API + Ollama 本地 |
-| 低成本 | DeepSeek API（错峰使用） |
-| 中等预算 | GPT-4o-mini + DeepSeek |
-| 高预算 | GPT-4o + Claude Opus |
+# 创建.env 文件存储 API Key
+load_dotenv()
+API_KEY = os.getenv("API_KEY")
 
----
+client = openai.OpenAI(api_key=API_KEY)
+```
 
-## 四、常见问题
+`.env` 文件内容：
+```
+API_KEY=你的 API Key
+```
 
-### Q1: 国内如何访问 OpenAI API？
+`.gitignore` 文件：
+```
+.env
+```
 
-使用代理或 API 中转服务（如能用 AI、OpenRouter 等）。
+### Q2: 本地模型太慢怎么办？
 
-### Q2: 本地部署需要什么配置？
+- 使用更小的模型（7B 而不是 70B）
+- 降低精度（使用量化版本）
+- 使用 GPU 而不是 CPU
 
-| 模型大小 | 最低显存 | 推荐显存 |
-|----------|----------|----------|
-| 7B | 8GB | 12GB |
-| 14B | 16GB | 24GB |
-| 32B | 24GB | 48GB |
-| 70B | 48GB | 80GB |
+### Q3: 免费额度够用吗？
 
-### Q3: 如何选择本地模型？
-
-- **日常对话**：Qwen2.5-7B、Llama3.1-8B
-- **代码生成**：DeepSeek-Coder、CodeLlama
-- **推理任务**：DeepSeek-R1-Distill-Qwen
-- **低配置电脑**：Phi-3-mini、Qwen2.5-3B
+对于学习和测试：
+- NVIDIA NIM：完全够用
+- Gemini：免费层级很慷慨
+- DeepSeek：10 元能用很久
 
 ---
 
 ## 下一步
 
-掌握了 API 申请和本地部署后，开始学习 Prompt 工程：
-→ [05-Prompt工程](../05-Prompt工程/)
+搞定了 API，接下来我们正式学习：
+→ [01-什么是大模型](../01-什么是大模型/)
